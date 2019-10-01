@@ -1,0 +1,24 @@
+{
+  "name": "blocksites",
+  "version": "0.2.0",
+  "description": "Blockchain sites",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/3s3s/blockchainsites2.git"
+  },
+  "dependencies": {
+    "bip65": "latest",
+    "bitcoinjs-lib": "latest",
+    "jquery": "^3.4.1",
+    "node-fetch": "^2.6.0"
+  },
+  "bugs": {
+    "url": "https://github.com/3s3s/blockchainsites2/issues"
+  },
+  "homepage": "https://github.com/3s3s/blockchainsites2#readme",
+  "scripts": {
+    "start": "browserify --debug ./source/main.js > ./js/main.js"
+  },
+  "author": "",
+  "license": "ISC"
+}

@@ -1,0 +1,36 @@
+{
+
+  "manifest_version": 2,
+  "name": "BlockchainData",
+  "version": "1.0.1",
+ 
+  "description": "Create and browse sites in Bitcoin network",
+  "permissions": ["*://*/*", "activeTab", "storage"],
+
+  "icons": {
+    "48": "icons/icon.png"
+  },
+  
+  "browser_action": {
+    "default_icon": "icons/icon.png",
+    "default_title": "BlockchainSites"
+  },
+
+  "applications": {
+    "gecko": {
+      "id": "ivanivanovkzv@gmail.com",
+      "strict_min_version": "48.0"
+    }
+  },
+
+	"protocol_handlers": [
+	  {
+		"protocol": "ext+tbtc",
+		"name": "Testnet Sites",
+		"uriTemplate": "html/index.html#page=%s"
+	  }
+	],
+  "background": {
+    "scripts": ["js/background.js"]
+  }	
+}
