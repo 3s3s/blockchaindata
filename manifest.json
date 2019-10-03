@@ -2,7 +2,7 @@
 
   "manifest_version": 2,
   "name": "BlockchainData",
-  "version": "1.0.2",
+  "version": "1.0.3",
  
   "description": "Create and browse sites in Bitcoin network",
   "permissions": ["activeTab", "storage", "webRequest", "webRequestBlocking", "<all_urls>"],

@@ -30,7 +30,7 @@ async function OnSiteChanged(txID)
     else
     {
         const img = $('<img src="data:image/jpeg;base64,'+obj.base64+'"/>');
-        $('#image').append(img);
+        $('#image').append(img); 
     }
 }
 
