@@ -65,7 +65,7 @@ exports.UpdateSavedData = async function(savedData)
     })
     
     const tr = $("<tr></tr>");
-    const td1 = $("<td><a href='ext+tbtc://"+txid+"' target='_blank'>ext+tbtc://"+txid+"</a></td>");
+    const td1 = $("<td><a href='http://tbtc/"+txid+"' target='_blank'>http://tbtc/"+txid+"</a></td>");
     const td2 = $("<td></td>").append(X);
     
     $('#saved-data-table').append(tr.append(td1).append(td2));

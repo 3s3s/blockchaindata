@@ -344,7 +344,7 @@ function GetDataFromTXID(txid, network = "tBTC")
   return new Promise(async ok => {
     const txData = await exports.getrawtransaction(txid, network);
     if (!txData || txData.error)
-      return ok({type: 'error', data: txData});
+      return ok({type: 'error', data: txData, message: txData.error.message || txData.message});
 
     let fullData = "";
     for (let i=0; i<txData.result.vin.length; i++)
@@ -365,7 +365,7 @@ function GetObjectFromFullDataString(fullDataString)
       try {
         return ok(JSON.parse(inflated_buffer.toString('utf8')));
       } catch (e) {
-        return ok({type: 'error', data: fullDataString, err: err, error: e});
+        return ok({type: 'error', data: fullDataString, err: err, error: e, message: e.message});
       }
     });
   });
@@ -373,14 +373,14 @@ function GetObjectFromFullDataString(fullDataString)
 
 function ErrorPage(message = "Error!")
 {
-  return Buffer.from("<html><body><h2>"+message+"</h2></body></html>").toString('base64');
+  return {base64: Buffer.from("<html><body><h2>"+message+"</h2></body></html>").toString('base64'), type: "text"};
 }
 
 function GetDataFromObject(obj, network = "tBTC")
 {
   return new Promise(async ok => {
     if (obj.type == 'error')
-      return ok(ErrorPage());
+      return ok(ErrorPage(obj.message || "Unknown error!"));
 
     if (obj.type == 'text' || obj.type == 'file')
       return ok({base64: obj.base64, type: obj.type});
@@ -395,7 +395,7 @@ function GetDataFromObject(obj, network = "tBTC")
         {
           const data = await GetDataFromTXID(txsArray[i], network);
           if (data.type == 'error')
-            return ok(ErrorPage());
+            return ok(ErrorPage(data.message || "Unknown error!"));
 
           fullData += data.string;
         }
@@ -405,7 +405,7 @@ function GetDataFromObject(obj, network = "tBTC")
         return ok(await GetDataFromObject(objJSON, network));
       }
       catch(e) {
-        return ok(ErrorPage());
+        return ok(ErrorPage(e.message));
       }
     }
   });
@@ -417,7 +417,7 @@ exports.GetObjectFromBlockchain = function(txid, network = "tBTC")
 
     const data = await GetDataFromTXID(txid, network);
     if (data.type == 'error')
-      return ok(ErrorPage());
+      return ok(ErrorPage(data.message || "Unknown error!"));
 
     const obj = await GetObjectFromFullDataString(data.string);
 
@@ -430,24 +430,13 @@ exports.GetObjectFromBlockchain = function(txid, network = "tBTC")
 exports.GetSettings = function(key)
 {
   return new Promise(ok => {
-    const parent = chrome || browser;
-    
-    if (chrome)
-    {
-      chrome.storage.local.get([key], items => {
+
+    chrome.storage.local.get([key], items => {
         ok(items[key])});
-    }
-    else
-    {
-      let gettingItem = browser.storage.local.get(key);
-      gettingItem.then(items => ok(items), ok(false));
-    }
-    
+
   });
 }
 exports.SetSettings = function(keyval)
 {
-  const parent = chrome || browser;
-  
-  parent.storage.local.set(keyval);
+  chrome.storage.local.set(keyval);
 }

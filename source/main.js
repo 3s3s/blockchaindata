@@ -6,30 +6,32 @@ const utils = require("./utils.js")
 
 let g_LastHash = "";
 document.addEventListener('DOMContentLoaded', function() {
-    setInterval(() => {
-		if (g_LastHash == window.location.hash)
-			return;
-		
-		g_LastHash = window.location.hash;
-		OnSiteChanged(g_LastHash.slice(25));		
-		}, 1000
-	);
-	
-	SetDefaults();
+
+	if (window.location.href.indexOf("index.html") == -1)
+	    SetDefaults();
+	else
+	    OnSiteChanged(window.location.hash.slice(1)); 
+
 }, false);
 
 async function OnSiteChanged(txID)
 {
+    $('#loader').show();
     const obj = await utils.GetObjectFromBlockchain(txID);
+    $('#loader').hide();
     
-    document.open('text/html');
     
     if (obj.type == 'text')
+    {
+        document.open('text/html');
         document.write(Buffer.from(obj.base64, 'base64').toString('utf8'));
+        document.close();
+    }
     else
-        document.write('<html><body><img src="data:image/jpeg;base64,'+obj.base64+'"/>');
-    
-    document.close();
+    {
+        const img = $('<img src="data:image/jpeg;base64,'+obj.base64+'"/>');
+        $('#image').append(img);
+    }
 }
 
 

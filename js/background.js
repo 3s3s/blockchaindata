@@ -1,11 +1,28 @@
 "use strict";
 
-browser.browserAction.onClicked.addListener(() => {
+chrome.webRequest.onBeforeRequest.addListener(
+  redirect,
+  {urls: ["http://tbtc/*"]},
+  ["blocking"]
+);
+
+function redirect(requestDetails) {
+  console.log("Redirecting: " + requestDetails.url);
+  
+  const txid = requestDetails.url.split('/')[3];
+  const ext = chrome.runtime.getURL("html/index.html#"+txid);
+  
+  return {
+    redirectUrl: ext
+  };
+}
+
+chrome.browserAction.onClicked.addListener(() => {
     
   const createData = {
-    type: "detached_panel",
-    url: "html/popup.html",
-    allowScriptsToClose: true
+    type: "panel",
+    url: "html/popup.html"
   };
-  const creating = browser.windows.create(createData); 
+  const creating = chrome.windows.create(createData); 
 });
+
