@@ -9,7 +9,7 @@ const Buffer = require('buffer').Buffer;
 const constants = require('./constants.js');
 const code = bitcoin.opcodes;
 
-const networks = {
+let networks = {
   'tBTC' : {
       url: 'http://127.0.0.1:18332',
       user: 'rpc_btc_test',
@@ -23,6 +23,12 @@ const networks = {
 exports.getNetwork = function(network = "tBTC")
 {
   return networks[network];
+}
+exports.updateNetwork = function(url, user, password, network = "tBTC")
+{
+  networks[network].url = url;
+  networks[network].user = user;
+  networks[network].password = password;
 }
 
 exports.sendRPC = function(method, params, network = "tBTC")
@@ -39,7 +45,11 @@ exports.sendRPC = function(method, params, network = "tBTC")
         method: 'post',
         headers: headers,
         body: body})
-        .then(res => res.json())
+        .then(res => {
+          if (res.status*1 < 400 || res.status*1 >= 500)
+            return res.json();
+          throw new Error("Connection error: "+res.statusText);
+        })
         .catch(err => { return {error: true, message: err.message}});
   }
   catch(e) {
@@ -85,6 +95,25 @@ exports.height = function(network = "tBTC")
 exports.getblockhash = function(height, network = "tBTC")
 {
     return exports.sendRPC('getblockhash', '['+height+']', network);
+}
+
+exports.getwalletaddress = function(network = "tBTC")
+{
+  return new Promise(async ok => {
+    const array = await exports.sendRPC("getaddressesbylabel", '["wallet"]', network);
+    if (array && !array.error && array.result)
+    {
+      for (let key in array.result)
+        return ok(key);
+    }
+    
+    const address = await exports.getnewaddress("wallet");
+    if (address && !address.error)
+      return ok(address.result);
+      
+    return ok("");
+    
+  })
 }
 
 exports.Hash160 = function(str)
@@ -344,7 +373,7 @@ function GetDataFromTXID(txid, network = "tBTC")
   return new Promise(async ok => {
     const txData = await exports.getrawtransaction(txid, network);
     if (!txData || txData.error)
-      return ok({type: 'error', data: txData, message: txData.error.message || txData.message});
+      return ok({type: 'error', data: txData || null, message: txData ? txData.error.message || txData.message : "Unknown error 1"});
 
     let fullData = "";
     for (let i=0; i<txData.result.vin.length; i++)

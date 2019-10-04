@@ -5,12 +5,18 @@ const popup = require("./popup.js")
 const utils = require("./utils.js")
 
 let g_LastHash = "";
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async () => {
 
 	if (window.location.href.indexOf("index.html") == -1)
+	{
+	    popup.UpdateSavedData();
 	    SetDefaults();
+	}
 	else
+	{
+	    await SetDefaults();
 	    OnSiteChanged(window.location.hash.slice(1)); 
+	}
 
 }, false);
 
@@ -36,27 +42,51 @@ async function OnSiteChanged(txID)
 
 
 // handle input changes
-/*const input = document.querySelector('input');
-input.addEventListener('change', () => {
-    console.log(input.files)
+$('#rpc_address').change(e => {
+    OnRPCChange();
+})
+$('#rpc_user').change(e => {
+    OnRPCChange();
+})
+$('#rpc_passsword').change(e => {
+    OnRPCChange();
+})
 
-    // grab the first file in the FileList object and pass it to the function
-    popup.saveFile(input.files[0])
-});*/
+function OnRPCChange()
+{
+    utils.SetSettings({rpc_address: $('#rpc_address').val()});
+    utils.SetSettings({rpc_user: $('#rpc_user').val()});
+    utils.SetSettings({rpc_passsword: $('#rpc_passsword').val()});
+    
+    SetDefaults();
+}
 
 async function SetDefaults()
 {
-    popup.UpdateSavedData();
+    return new Promise(async ok => {
+        const network = utils.getNetwork();
+        
+        const url = await utils.GetSettings('rpc_address') || network.url;
+        const user = await utils.GetSettings('rpc_user') || network.user;
+        const password = await utils.GetSettings('rpc_password') || network.password;
+        
+        utils.updateNetwork(url, user, password);
+        
+        if (window.location.href.indexOf("index.html") == -1)
+        {
+            $('#rpc_address').val(url);
+            $('#rpc_user').val(user);
+            $('#rpc_passsword').val(password);
+            
+            const balance = await utils.getbalance();
+            const address = await utils.getwalletaddress();
+            
+            $('#balance').val(balance && !balance.error ?  balance.result : "0.0");
+            $('#address').val(address);
+        }
     
-    const network = utils.getNetwork();
-    
-    const url = await utils.GetSettings('rpc_address') || network.url;
-    const user = await utils.GetSettings('rpc_user') || network.user;
-    const password = await utils.GetSettings('rpc_password') || network.password;
-    
-    $('#rpc_address').val(url);
-    $('#rpc_user').val(user);
-    $('#rpc_passsword').val(password);
+        ok();
+    })
 }
 
 $('#main_form').submit(e => {
@@ -67,9 +97,7 @@ $('#main_form').submit(e => {
     
     $("html, body").animate({ scrollTop: 0 }, "slow");
     try {
-        utils.SetSettings({rpc_address: $('#rpc_address').val()});
-        utils.SetSettings({rpc_user: $('#rpc_user').val()});
-        utils.SetSettings({rpc_passsword: $('#rpc_passsword').val()});
+        OnRPCChange()
         
         popup.saveFile($('#the-file-input')[0].files[0])
     }
