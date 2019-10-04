@@ -89,7 +89,7 @@ async function SetDefaults()
     })
 }
 
-$('#main_form').submit(e => {
+$('#file_form').submit(e => {
     e.preventDefault();
     
     if (!$('#the-file-input')[0].files.length)
