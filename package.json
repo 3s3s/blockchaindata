@@ -9,7 +9,7 @@
   "dependencies": {
     "bip65": "latest",
     "bitcoinjs-lib": "latest",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "node-fetch": "^2.6.0"
   },
   "bugs": {
