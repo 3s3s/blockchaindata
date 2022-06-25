@@ -10,7 +10,7 @@
     "bip65": "latest",
     "bitcoinjs-lib": "latest",
     "jquery": "^3.4.1",
-    "node-fetch": "^2.6.0"
+    "node-fetch": "^2.6.7"
   },
   "bugs": {
     "url": "https://github.com/3s3s/blockchainsites2/issues"
